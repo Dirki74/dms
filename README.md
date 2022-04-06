@@ -1,6 +1,8 @@
 # dms
 Little DMS
 
+Sprache des Skrips: deutsch
+
 Anleitung zur Installation eines WSGI-Servers unter Ubuntu:
 https://hotlein.de/wsgi-server-erstellen-unter-ubuntu-20-4/
 
