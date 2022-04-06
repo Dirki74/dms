@@ -1,5 +1,8 @@
 # dms
-Little DMS
+Ein kleines DMS (Document Management System), geschrieben in Python und Flask
+
+Initiale Logindaten:
+admin // admin
 
 Sprache des Skrips: deutsch
 
