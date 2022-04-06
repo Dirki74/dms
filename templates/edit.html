@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{% block title %} Dokument bearbeiten {% endblock %}</h1>
+
+<form method=post enctype=multipart/form-data>
+    <div class="form-group">
+        <label for="title">Dokumentname:</label>
+        <input type="text" name="docname"
+               class="form-control"
+               value="{{ currdocname}}">
+    </div>
+
+    <div class="form-group">
+        <label for="content">Schlüsselwörter:</label>
+        <textarea name="keywords"
+                  class="form-control">{{ currkeywords }}</textarea>
+    </div>
+        <div>
+      <label>Kategorie: </label><br>
+      <select name="cat" size="5">
+      <option selected>{{ currcategory }}</option>
+          {%  for entry in categorys %}
+            <option>{{ entry[1] }}</option>
+          {% endfor %}
+      </select>
+    </div>
+    <br>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Dokument Ändern</button>
+    </div>
+
+</form>
+
+    <hr>
+    <form action="{{ url_for('delete', docid=docid) }}" method="POST">
+    <input type="submit" value="Dokument löschen"
+            class="btn btn-danger btn-sm"
+            onclick="return confirm('Möchten Sie den Post wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden!')">
+    </form>
+
+{% endblock %}

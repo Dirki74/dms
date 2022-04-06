@@ -1,0 +1,68 @@
+{% extends 'base_adm.html' %}
+
+{% block content %}
+    <!DOCTYPE html>
+
+<head>
+<meta charset="UTF-8">
+
+{% if isadmin %}
+<h1>{% block title %} Einstellungen: {% endblock %}</h1>
+</head>
+    <hr>
+    <form method="post">
+    <div class="form-group" >
+        <h2>Allgemeine Einstellungen:</h2>
+        <label for="name"><strong>Erlaubte Erweiterungen:</strong></label>
+        <input type="text" name="extensions"
+               class="form-control"
+               value="{{ dbextensions }}"></input>
+        <p>Beispiel: "txt", "jpg", "png"</p>
+        <hr>
+        <br>
+        <h2>Einstellungen Mailserver (für Kennwort-Vergessen-Funktion:</h2>
+        <br>
+        <label for="name"><strong>Mailserver (SMTP):</strong></label>
+        <input type="text" name="mailserver"
+               class="form-control"
+               value="{{ dbmailserver }}"></input>
+        <br>
+        <label for="name"><strong>Mailserver-Port:</strong></label>
+        <input type="text" name="mailport"
+               class="form-control"
+               value="{{ dbmailport }}"></input>
+        <br>
+        <label for="email"><strong>Benutzername Mailserver:</strong></label>
+        <input type="text" name="mailname"
+               class="form-control"
+               value="{{ dbmailname }}"></input>
+        <br>
+        <label for="email"><strong>Passwort Mailserver:</strong></label>
+        <input type="password" name="mailpw"
+               class="form-control"
+               value="{{ dbmailpw }}"></input>
+        <br>
+        <label for="email"><strong>Absenderadresse:</strong></label>
+        <input type="text" name="mailfrom"
+               class="form-control"
+               value="{{ dbmailfrom }}"></input>
+        <br>
+                <label for="email"><strong>Mailbetreff:</strong></label>
+        <input type="text" name="mailsubject"
+               class="form-control"
+               value="{{ dbmailsubject }}"></input>
+        <br>
+        <label for="email"><strong>Mailtext:</strong></label>
+        <p>Platzhalter: {pw} für generiertes Passwort, {name}, für den kompletten Namen.</p>
+        <textarea name="mailtext" type="text" class="form-control" wrap="hard"  rows="6">{{ dbmailtext }}
+           </textarea>
+        <br>
+
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Einstellungen speichern</button>
+    </div>
+
+    </form>
+        {% endif%}
+{% endblock %}

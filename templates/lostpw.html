@@ -1,0 +1,26 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+    <!DOCTYPE html>
+
+<head>
+<meta charset="UTF-8">
+
+
+<h1>{% block title %} Kennwort vergessen: {% endblock %}</h1>
+</head>
+    <hr>
+    <form method="post">
+    <div class="form-group" >
+        <label for="name">Benutzername</label>
+        <input type="text" name="name"
+               class="form-control"></input>
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Kennwort zusenden!</button>
+    </div>
+
+</form>
+{% endblock %}

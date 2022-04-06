@@ -1,0 +1,27 @@
+{% extends 'base_adm.html' %}
+
+{% block content %}
+    <head>
+        <h1>{% block title %} Benutzerverwaltung: {% endblock %}</h1>
+        <hr>
+    </head>
+    <body>
+        <form action={{url_for('adduser')}}>
+            <input type="submit" value="Benutzer hinzufügen" />
+        </form>
+        <hr>
+        <table cellpadding="10px">
+        <thead>
+        <th>Nummer</th><th>Name</th><th>Login</th><th>eMail</th><th>Berechtigung</th><th>Ändern</th>
+        </thead>
+        <tbody>
+         {% for items in users%}
+             <tr>
+                 <td>{{items[0]}}</td><td>{{items[2]}}</td><td>{{items[1]}}</td><td>{{items[6]}}</td><td>{{items[3]}}</td><td><a href="/edit_user/{{items[0]}}"><img src="/static/images/edit.png" width="32", height="32"></a></td>
+             </tr>
+
+            {% endfor %}
+        </tbody>
+        </table>
+</body>
+{% endblock %}

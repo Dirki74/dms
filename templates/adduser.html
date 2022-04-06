@@ -1,0 +1,51 @@
+{% extends 'base_adm.html' %}
+
+{% block content %}
+<head>
+<meta charset="UTF-8">
+
+<h1>Benutzer hinzufügen:</h1>
+</head>
+    <body>
+    <form method=post enctype=multipart/form-data>
+        <label for="name">Vollständiger Name(*):</label>
+        <input type="text" name="name" required
+               class="form-control"
+        value="{{ name }}"></input>
+    <label for="email">Benutzername(*):</label>
+        <input type="text" name="logname" required
+               class="form-control"
+                value="{{ logname }}">
+        </input>
+
+                <label for="password1">Neues Passwort(*):</label>
+        <input type="password" name="password1" required
+               class="form-control"></input>
+
+        <label for="password2">Passwort wiederholen(*):</label>
+        <input type="password" name="password2" required
+               class="form-control"></input>
+
+         <label for="email">eMail-Adresse:</label>
+        <input type="text" name="email"
+               class="form-control"
+               value="{{ email }}"></input>
+        <br>
+      <label>Rolle(*): </label><br>
+      <select name="role" size="5" required>
+      <option selected>Bitte wählen!</option>
+          <option> Leser</option>
+          <option> Leser und Schreiber</option>
+          <option> Administrator </option>
+      </select>
+        <br>
+        * = Pflichtfelder
+        <br>
+        <br>
+            <button type="submit" class="btn btn-primary">Hinzufügen</button>
+        </form>
+    </body>
+    <br>
+    <hr>
+    <br>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <!DOCTYPE html>
+
+<head>
+<meta charset="UTF-8">
+
+
+<h1>{% block title %} DMS - Bitte loggen Sie sich ein: {% endblock %}</h1>
+</head>
+    <hr>
+    <form method="post">
+    <div class="form-group" >
+        <label for="name">Benutzername</label>
+        <input type="text" name="name"
+               class="form-control"
+               value="{{ request.form['name'] }}"></input>
+    </div>
+
+    <div class="form-group">
+        <label for="name">Passwort</label>
+        <input type="password" name="password"
+               class="form-control"
+               value="{{ request.form['password'] }}"></input>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Einloggen</button>
+    </div>
+    <hr>
+</form>
+<a class="nav-link" href="{{url_for('lostpw')}}">Kennwort vergessen!</a>
+   <hr>
+
+{% endblock %}

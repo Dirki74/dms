@@ -1,0 +1,53 @@
+{% extends 'base_adm.html' %}
+
+{% block content %}
+    <!DOCTYPE html>
+
+<head>
+<meta charset="UTF-8">
+
+
+<h1>{% block title %} Benutzereinstellung: {% endblock %}</h1>
+</head>
+    <hr>
+    <form method="post">
+    <div class="form-group" >
+        <label for="name">Vollständiger Name:</label>
+        <input type="text" name="name"
+               class="form-control"
+               value="{{ name }}"></input>
+
+        <label for="password1">Neues Passwort:</label>
+        <input type="password" name="password1"
+               class="form-control"></input>
+
+        <label for="password2">Passwort wiederholen:</label>
+        <input type="password" name="password2"
+               class="form-control"></input>
+
+        <label for="email">eMail-Adresse:</label>
+        <input type="text" name="email"
+               class="form-control"
+               value="{{ email }}"></input>
+        <br>
+        <p>Aktuelle Rolle: <strong> {{ role }}</strong></p>
+        <label>Neue Rolle: </label><br>
+        <select name="role" size="5" required>
+        <option selected>Bitte wählen!</option>
+        <option> Leser</option>
+        <option> Leser und Schreiber</option>
+        <option> Administrator </option>
+      </select>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Änderungen durchführen</button>
+    </div>
+</form>
+   <hr>
+    <hr>
+    <form action="{{ url_for('delete_user', userid=userid) }}" method="POST">
+    <input type="submit" value="Benutzer löschen"
+            class="btn btn-danger btn-sm"
+            onclick="return confirm('Möchten Sie den Benutzer wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden!')">
+    </form>
+{% endblock %}

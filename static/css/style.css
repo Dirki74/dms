@@ -1,0 +1,9 @@
+.navigation{
+    list-style-type: None;
+}
+.navigation-item{
+    float: left;
+
+    padding-right: 10px;
+}
+
