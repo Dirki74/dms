@@ -4,6 +4,7 @@ Ein kleines DMS (Document Management System), geschrieben in Python und Flask, b
 Initiale Logindaten:
 admin // admin
 
+
 Sprache des Skrips: deutsch
 
 Anleitung zur Installation eines WSGI-Servers unter Ubuntu:
@@ -14,3 +15,4 @@ Anleitung zur Nutzung des Skriptes mit Gunicorn:
 
 https://hotlein.de/flask-anwendungen-mit-gunicorn-bereitstellen-ubuntu-20-4/
 
+Die Benutzung des Skriptes erfolgt auf eigene Gefahr und ohne Anspruch auf Support.
