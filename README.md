@@ -1,5 +1,5 @@
 # dms
-Ein kleines DMS (Document Management System), geschrieben in Python und Flask
+Ein kleines DMS (Document Management System), geschrieben in Python und Flask, basierend auf einer SQLite-Datenbank.
 
 Initiale Logindaten:
 admin // admin
