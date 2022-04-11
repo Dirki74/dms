@@ -13,10 +13,16 @@ from base64 import b64encode
 import zipfile
 import io
 
+#
+#  Navigation kontrollieren
+#  Privatsphäre in einzelansicht berücksichtigen
+#  Privatsphäre in Download berücksichtigen
+#  Suche in welcome mit Privatsphäre komplettieren
+
 
 app = Flask(__name__)
 application = app  # Erforderlich für Apache WSGI
-app.config['SECRET_KEY'] = 'lkjeflohg3qpghlvhboi<a'
+app.config['SECRET_KEY'] = 'lkjeflohg3qpghlvhboi<a'  # Für Produktiv-Systeme auf jeden Fall ändern
 basedir = "data"
 
 apppath = os.path.abspath('app.py')
@@ -333,10 +339,20 @@ def profile():
 
 @app.route('/admin')
 def admin():
+    if 'name' not in session:
+        flash("Sie müssen sich erst einloggen!")
+        time.sleep(1)
+        return redirect(url_for("index"))
+
     isadmin = is_admin()
+    users, categories, docs, dbsizekb, dbsizemb = admin_statistics()
+    sizebytes, sizemb, sizegb = get_uploadsize()
+
     if isadmin:
-        return render_template('admin.html', isadmin=isadmin)
+        return render_template('admin.html', isadmin=isadmin, users=users, categories=categories, docs=docs,
+                               dbsizekb=dbsizekb, dbsizemb=dbsizemb, sizebytes=sizebytes, sizemb=sizemb, sizegb=sizegb)
     else:
+        flash("Keine Berechtigung!")
         return render_template("welcome.html")
 
 
@@ -472,13 +488,6 @@ def index():
         name = request.form['name']
         password = request.form['password']
         name = name.lower()
-        conn = sqlite3.connect(database)
-        c = conn.cursor()
-        params = (name,)
-        sql = """SELECT * FROM users where loginname is ? """
-        c.execute(sql, params)
-        data = c.fetchone()
-        conn.close()
 
         if 'name' in session:
             return render_template('welcome.html')
@@ -491,14 +500,26 @@ def index():
             flash('Passwort wird benötigt')
             return render_template('index.html')
 
-        fullname = data[2]
+        conn = sqlite3.connect(database)
+        c = conn.cursor()
+        params = (name,)
+
+        sql = """SELECT * FROM users where loginname is ? """
+        c.execute(sql, params)
+        data = c.fetchone()
+        conn.close()
+        if not data:
+            flash("Der Benutzername ist nicht in der Datenbank enthalten!")
+            return render_template('index.html')
+
         dbsalt = data[4]
         dbpass = data[5]
-        dbrole = data[3]
 
         loginok = check_pw(password, dbpass, dbsalt)
 
         if loginok:
+            fullname = data[2]
+            dbrole = data[3]
             session["name"] = request.form["name"]
             session["password"] = request.form["password"]
             session["role"] = dbrole
@@ -519,6 +540,10 @@ def edit(docid):
         return redirect(url_for("index"))
 
     isreadonly = is_readonly()
+    isadmin = is_admin()
+    name = session["name"]
+    users = get_users()
+    isowner = is_owner(name, docid)
     if isreadonly:
         flash("Keine Berechtigung!")
         return render_template("welcome.html")
@@ -539,6 +564,11 @@ def edit(docid):
         docname = request.form['docname']
         keywords = request.form['keywords']
         newcategory = request.form['cat']
+
+        if request.form.get("private"):
+            private = True
+        else:
+            private = False
 
         if docname == "":
             docname = currdocname
@@ -567,18 +597,19 @@ def edit(docid):
                 flash(str(e))
 
         flash("Dokument geändert")
-
+        print(private)
         conn = sqlite3.connect(database)
         c = conn.cursor()
-        c.execute("""UPDATE docs SET doc_name=?, keywords=?, category=? WHERE id = ?""", (docname, keywords,
-                                                                                          newcategory, docid))
+        c.execute("""UPDATE docs SET doc_name=?, keywords=?, category=?, private=? WHERE id = ?""", (docname, keywords,
+                                                                                          newcategory, private, docid))
         conn.commit()
         conn.close()
 
         return redirect(url_for("show_docs"))
 
     return render_template('edit.html', currdocname=currdocname, currkeywords=currkeywords, docid=docid,
-                           currcategory=currcategory, categorys=sortedcat)
+                           currcategory=currcategory, categorys=sortedcat, isadmin=isadmin, isowner=isowner,
+                           users=users)
 
 
 @app.route('/delete', methods=('GET', 'POST'))
@@ -666,9 +697,15 @@ def show_docs():
 
     conn = sqlite3.connect(database)
     c = conn.cursor()
-
-    sql = """SELECT * FROM docs"""
-    c.execute(sql)
+    name = session["name"]
+    private = 0
+    if not is_admin():
+        params = (name, private)
+        sql = """SELECT * FROM docs WHERE owner = ? OR private = ?"""
+        c.execute(sql, params)
+    else:
+        sql = """SELECT * FROM docs"""
+        c.execute(sql)
 
     docs = c.fetchall()
     conn.close()
@@ -687,6 +724,7 @@ def welcome():
     conn = sqlite3.connect(database)
     c = conn.cursor()
     name = session["name"]
+
     params = (name, )
     sql = """SELECT name from users where loginname is ?"""
     c.execute(sql, params)
@@ -699,17 +737,25 @@ def welcome():
         c = conn.cursor()
         searchstring = request.form['searchdoc']
         searchstring = "%" + searchstring.lower() + "%"
-        print(searchstring)
         cats = request.form['cats']
 
         if cats == "alle":
-            params = (searchstring,)
-            sql = """SELECT * FROM docs WHERE LOWER (keywords) like ?"""
-            c.execute(sql, params)
-            docs = c.fetchall()
-            sql = """SELECT * FROM docs WHERE LOWER (doc_name) like ?"""
-            c.execute(sql, params)
-            docs1 = c.fetchall()
+            if not is_admin():
+                params = (searchstring, name)
+                sql = """SELECT * FROM docs WHERE LOWER (keywords) like ? AND owner = ? OR private = 0"""
+                c.execute(sql, params)
+                docs = c.fetchall()
+                sql = """SELECT * FROM docs WHERE LOWER (doc_name) like ?  AND owner = ? OR private = 0"""
+                c.execute(sql, params)
+                docs1 = c.fetchall()
+            else:
+                params = (searchstring, )
+                sql = """SELECT * FROM docs WHERE LOWER (keywords) like ?"""
+                c.execute(sql, params)
+                docs = c.fetchall()
+                sql = """SELECT * FROM docs WHERE LOWER (doc_name) like ?"""
+                c.execute(sql, params)
+                docs1 = c.fetchall()
 
         else:
             params = (searchstring, cats)
@@ -731,11 +777,15 @@ def welcome():
             docs1 = c.fetchall()
 
         conn.close()
-        if docs == docs1:
-            docs1 = ""
+        docsall = docs + docs1
+        docssorted = []
+        for element in docsall:
+            if element not in docssorted:
+                docssorted.append(element)
+
         isadmin = is_admin()
         isreadonly = is_readonly()
-        return render_template("search_docs.html", docs=docs, docs1=docs1, fullname=fullname, isadmin=isadmin,
+        return render_template("search_docs.html", docs=docssorted, fullname=fullname, isadmin=isadmin,
                                isreadonly=isreadonly)
 
     isadmin = is_admin()
@@ -766,13 +816,20 @@ def add_doc():
         content = request.form['content']
         selected_cat = request.form['cat']
         file = request.files["file"]
+        name = session["name"]
+
         if selected_cat == "Bitte wählen!":
             selected_cat = "default"
         params = (selected_cat, )
         sql = """SELECT path FROM category WHERE catname is ?"""
 
+        if request.form.get("private"):
+            private = True
+        else:
+            private = False
+
         if not title:
-            flash('Der Dokumentname ist erforderlich!')
+            title = file.filename
 
         if not file:
             flash("Bitte wählen Sie eine Datei aus!")
@@ -793,8 +850,8 @@ def add_doc():
             date = str(time.strftime("%d.%m.%Y-%H:%M:%S"))
             conn = sqlite3.connect(database)
             c = conn.cursor()
-            params = (filename, content, date, title, selected_cat)
-            sql = """INSERT INTO docs (filename, keywords, mod_date, doc_name, category) VALUES (?, ?, ?, ?, ?)"""
+            params = (filename, content, date, title, selected_cat, name, private)
+            sql = """INSERT INTO docs (filename, keywords, mod_date, doc_name, category, owner, private) VALUES (?, ?, ?, ?, ?, ?, ?)"""
             c.execute(sql, params)
             conn.commit()
             conn.close()
@@ -953,6 +1010,15 @@ def get_category():
     conn.close()
     return category
 
+def get_users():
+    sql = """SELECT * FROM users"""
+    conn = sqlite3.connect(database)
+    c = conn.cursor()
+    c.execute(sql)
+    users = c.fetchall()
+    conn.close()
+    return users
+
 
 def get_all_users():
     conn = sqlite3.connect(database)
@@ -964,5 +1030,52 @@ def get_all_users():
     return users
 
 
+def is_owner(name, docid):
+    conn = sqlite3.connect(database)
+    c = conn.cursor()
+    params = (docid, )
+    sql = """SELECT owner FROM docs WHERE ID=?"""
+    c.execute(sql, params)
+    owner = c.fetchone()
+    owner = owner[0]
+    conn.close()
+    isowner = name == owner
+    print(isowner)
+    return isowner
+
+
+def admin_statistics():
+    conn = sqlite3.connect(database)
+    c = conn.cursor()
+    users = c.execute("SELECT * FROM users").fetchall()
+    categories = c.execute("SELECT * FROM category").fetchall()
+    docs = c.execute("SELECT * FROM docs").fetchall()
+    users = len(users)
+    categories = len(categories)
+    docs = len(docs)
+    dbsizekb = os.stat(database).st_size
+    dbsizemb = float(dbsizekb) / 1024 / 1024
+    dbsizemb = round(dbsizemb, 2)
+    get_uploadsize()
+    return users, categories, docs, dbsizekb, dbsizemb
+
+
+def get_uploadsize():
+    size = 0
+    Folderpath = os.path.join(basedir, "upload")
+
+    for path, dirs, files in os.walk(Folderpath):
+        for f in files:
+            fp = os.path.join(path, f)
+            size += os.path.getsize(fp)
+    sizebytes = size
+    sizemb = float(size) / 1024 / 1024
+    sizemb = round(sizemb, 3)
+    sizegb = float(size) / 1024 / 1024 / 1024
+    sizegb = round(sizegb, 3)
+
+    return sizebytes, sizemb, sizegb
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True)  # bei Produkticsystemen mus das debugging auf False gesetzt werden.

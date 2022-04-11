@@ -4,11 +4,24 @@
 <head>
 <meta charset="UTF-8">
 
-<h1>Admin:</h1>
+<h1>Administratorenbereich:</h1>
+
 </head>
 
     <body>
-    <p>Hier kommen irgendwann Statistiken rein"</p>
+    <hr>
+    <br>
+    <h3>Statistiken:</h3>
+    <br>
+    <h4>Zahlen</h4>
+    <p>Anzahl der Benutzer: <strong>{{ users }}</strong></p>
+    <p>Anzahl der Dokumente: <strong>{{ docs }}</strong></p>
+    <p>Anzahl der Kategorien: <strong>{{ categories }}</strong></p>
+    <br>
+    <h4>Größen</h4>
+    <p>Datenbankgröße: <strong>{{ dbsizekb }}</strong> kb (<strong>{{ dbsizemb }}</strong>mb)</p>
+    <p>Größe der Uploads: <strong>{{ sizebytes }}</strong> kb (<strong>{{ sizemb }}</strong>mb, <strong>{{ sizegb }}
+        </strong>gb)</p>
     </body>
 
    <hr>

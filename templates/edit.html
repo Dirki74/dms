@@ -26,6 +26,23 @@
       </select>
     </div>
     <br>
+    {% if isadmin or isowner %}
+    <div>
+  <input type="checkbox" id="private" name="private">
+  <label for="private">Das Dokument ist privat</label>
+    </div>
+        <br>
+        <label for="newuser">Besitz an folgenden Benutzer übergeben:</label><br>
+
+        <select name="newuser" id="newuser  ">
+          <option value="select">Bitte auswählen</option>
+            {%  for entry in users %}
+            <option value="{{ entry[1] }}">{{ entry[2] }}</option>
+          {% endfor %}
+        </select>
+        <br> <br> <br>
+        {% endif %}
+
     <div class="form-group">
         <button type="submit" class="btn btn-primary">Dokument Ändern</button>
     </div>
