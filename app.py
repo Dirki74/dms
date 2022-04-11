@@ -13,7 +13,7 @@ from base64 import b64encode
 import zipfile
 import io
 
-#
+# TODO
 #  Navigation kontrollieren
 #  Privatsphäre in einzelansicht berücksichtigen
 #  Privatsphäre in Download berücksichtigen
@@ -877,8 +877,7 @@ def do_logout():
 
 @app.route('/about')
 def about():
-    isreadonly = is_readonly()
-    return render_template("about.html", isreadonly=isreadonly)
+    return render_template("about.html")
 
 
 def gen_salt():
