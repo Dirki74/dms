@@ -18,6 +18,9 @@ import io
 #  Privatsphäre in einzelansicht berücksichtigen
 #  Privatsphäre in Download berücksichtigen
 #  Suche in welcome mit Privatsphäre komplettieren
+#  in  Dateiauswahl Auswahl auf erlaubte Dateien beschränken. Ansatz: str = ','.join(ext)
+#  Fehler bei Anlegen einer bereits vorhandenen Kategorie entfernen
+#  Bei Kategorie löschen "Bitte Auswählen" in "vorhandene Dateien löschen" ändern und entsprechende Funktion einfügen
 
 
 app = Flask(__name__)
@@ -758,23 +761,40 @@ def welcome():
                 docs1 = c.fetchall()
 
         else:
-            params = (searchstring, cats)
-            sql = """SELECT * FROM docs WHERE LOWER (keywords) like ? and category is ?"""
+            #TODO
+            # Aktuell ein Bug, der alle Dokumente Ausgibt, obwohl Keyword oder docname nicht passen
+            params = (name, searchstring, cats)
+            # sql = """SELECT * FROM docs WHERE LOWER (keywords) like ? and category is ?"""
+            sql = """SELECT * FROM (SELECT * FROM docs WHERE owner = ? OR private = 0) WHERE LOWER (keywords) like ? AND category IS ?"""
             c.execute(sql, params)
             docs = c.fetchall()
-            sql = """SELECT * FROM docs WHERE LOWER (doc_name) like ? and category is ?"""
+            # sql = """SELECT * FROM docs WHERE LOWER (doc_name) like ? and category is ?"""
+            sql = """SELECT * FROM (SELECT * FROM docs WHERE owner = ? OR private = 0) WHERE LOWER (doc_name) like ? AND category IS ?"""
             c.execute(sql, params)
             docs1 = c.fetchall()
 
         if searchstring == "":
-            if cats == "alle":
-                sql = """SELECT * FROM docs"""
-                c.execute(sql)
+
+            if is_admin():
+                if cats == "alle":
+                    sql = """SELECT * FROM docs"""
+                    c.execute(sql)
+                else:
+                    params = (cats,)
+                    sql = """SELECT * FROM docs WHERE category is ?"""
+                    c.execute(sql, params)
+                docs1 = c.fetchall()
+
             else:
-                params = (cats, )
-                sql = """SELECT * FROM docs WHERE category is ?"""
-                c.execute(sql, params)
-            docs1 = c.fetchall()
+                if cats == "alle":
+                    params = (name, )
+                    sql = """SELECT * FROM docs WHERE owner = ? OR private = 0"""
+                    c.execute(sql, params)
+                else:
+                    params = (cats, name)
+                    sql = """SELECT * FROM docs WHERE category is ? AND owner = ? OR private = 0"""
+                    c.execute(sql, params)
+                docs1 = c.fetchall()
 
         conn.close()
         docsall = docs + docs1
@@ -801,6 +821,7 @@ def add_doc():
     c = conn.cursor()
     category = get_category()
     isreadonly = is_readonly()
+    allowed_extension = get_extensions()
 
     if 'name' not in session:
         flash("Sie müssen sich erst einloggen!")
@@ -856,11 +877,11 @@ def add_doc():
             conn.commit()
             conn.close()
             flash("Dokument erfolgreich hochgeladen!")
-            return render_template('add_doc.html', category=category)
+            return render_template('add_doc.html', category=category, allowed_extension=allowed_extension)
         else:
             flash("Ungültige Dateiendung!")
 
-    return render_template('add_doc.html', category=category)
+    return render_template('add_doc.html', category=category, allowed_extension=allowed_extension)
 
 
 @app.route('/logout')
@@ -1061,9 +1082,9 @@ def admin_statistics():
 
 def get_uploadsize():
     size = 0
-    Folderpath = os.path.join(basedir, "upload")
+    folderpath = os.path.join(basedir, "upload")
 
-    for path, dirs, files in os.walk(Folderpath):
+    for path, dirs, files in os.walk(folderpath):
         for f in files:
             fp = os.path.join(path, f)
             size += os.path.getsize(fp)
@@ -1077,4 +1098,4 @@ def get_uploadsize():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)  # bei Produkticsystemen mus das debugging auf False gesetzt werden.
+    app.run(debug=True)  # bei Produktivsystemen mus das debugging auf False gesetzt werden.
