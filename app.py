@@ -745,10 +745,12 @@ def welcome():
         if cats == "alle":
             if not is_admin():
                 params = (searchstring, name)
-                sql = """SELECT * FROM docs WHERE LOWER (keywords) like ? AND owner = ? OR private = 0"""
+                # sql = """SELECT * FROM docs WHERE LOWER (keywords) like ? AND owner = ? OR private = 0"""
+                sql = """SELECT * FROM docs WHERE LOWER (keywords) like ? AND (owner = ? OR private = 0)"""
                 c.execute(sql, params)
                 docs = c.fetchall()
-                sql = """SELECT * FROM docs WHERE LOWER (doc_name) like ?  AND owner = ? OR private = 0"""
+                # sql = """SELECT * FROM docs WHERE LOWER (doc_name) like ?  AND owner = ? OR private = 0"""
+                sql = """SELECT * FROM docs WHERE LOWER (doc_name) like ?  AND (owner = ? OR private = 0)"""
                 c.execute(sql, params)
                 docs1 = c.fetchall()
             else:
