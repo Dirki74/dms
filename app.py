@@ -14,10 +14,8 @@ import zipfile
 import io
 
 # TODO
-#  Navigation kontrollieren
 #  Privatsphäre in einzelansicht berücksichtigen
 #  Privatsphäre in Download berücksichtigen
-#  Suche in welcome mit Privatsphäre komplettieren
 #  in  Dateiauswahl Auswahl auf erlaubte Dateien beschränken. Ansatz: str = ','.join(ext)
 #  Fehler bei Anlegen einer bereits vorhandenen Kategorie entfernen
 #  Bei Kategorie löschen "Bitte Auswählen" in "vorhandene Dateien löschen" ändern und entsprechende Funktion einfügen
