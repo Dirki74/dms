@@ -281,6 +281,7 @@ def profile():
         time.sleep(1)
         return redirect(url_for("index"))
     isreadonly = is_readonly()
+    isadmin = is_admin()
 
     conn = sqlite3.connect(database)
     c = conn.cursor()
@@ -337,7 +338,7 @@ def profile():
 
             return render_template('profile.html', email=email, role=dbrole)
 
-    return render_template('profile.html', email=dbemail, role=dbrole, isreadonly=isreadonly)
+    return render_template('profile.html', email=dbemail, role=dbrole, isreadonly=isreadonly, isadmin=isadmin)
 
 
 @app.route('/admin')
@@ -702,6 +703,8 @@ def show_docs():
     c = conn.cursor()
     name = session["name"]
     private = 0
+    isadmin = is_admin()
+
     if not is_admin():
         params = (name, private)
         sql = """SELECT * FROM docs WHERE owner = ? OR private = ?"""
@@ -714,7 +717,7 @@ def show_docs():
     conn.close()
     isreadonly = is_readonly()
 
-    return render_template('show_docs.html', docs=docs, isreadonly=isreadonly)
+    return render_template('show_docs.html', isadmin=isadmin, docs=docs, isreadonly=isreadonly)
 
 
 @app.route('/welcome', methods=('GET', 'POST'))
@@ -823,6 +826,7 @@ def add_doc():
     c = conn.cursor()
     category = get_category()
     isreadonly = is_readonly()
+    isadmin = is_admin()
     allowed_extension = get_extensions()
 
     if 'name' not in session:
@@ -878,8 +882,9 @@ def add_doc():
             c.execute(sql, params)
             conn.commit()
             conn.close()
-            flash("Dokument erfolgreich hochgeladen!")
-            return render_template('add_doc.html', category=category, allowed_extension=allowed_extension)
+            flash(f"Dokument \"{title}\" erfolgreich hochgeladen!")
+            return render_template('add_doc.html', isadmin=isadmin, category=category,
+                                   allowed_extension=allowed_extension)
         else:
             flash("Ungültige Dateiendung!")
 
