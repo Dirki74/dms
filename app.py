@@ -16,7 +16,6 @@ import io
 # TODO
 #  Privatsphäre in einzelansicht berücksichtigen
 #  Privatsphäre in Download berücksichtigen
-#  in  Dateiauswahl Auswahl auf erlaubte Dateien beschränken. Ansatz: str = ','.join(ext)
 #  Fehler bei Anlegen einer bereits vorhandenen Kategorie entfernen
 #  Bei Kategorie löschen "Bitte Auswählen" in "vorhandene Dateien löschen" ändern und entsprechende Funktion einfügen
 
@@ -67,6 +66,9 @@ def lostpw():
         try:
             s.send_message(msg)
             flash("Das neue Passwort ist per eMail unterwegs...")
+
+        except smtplib.SMTPAuthenticationError:
+            flash("Das Mailsystem ist nicht korrekt konfiguriert! Der Benutzername oder das Passwort sind falsch!")
 
         except smtplib.SMTPRecipientsRefused:
             flash("Die in ihr Profil enthaltene eMailadresse ist ungültig! "
