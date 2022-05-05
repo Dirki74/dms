@@ -687,6 +687,7 @@ def open_files(filename):
         time.sleep(1)
         return redirect(url_for("index"))
 
+
     filepath = get_filepath(filename)
     downname = os.path.join(basedir, filepath, filename)
     return send_file(downname, attachment_filename=filename)
@@ -1067,7 +1068,6 @@ def is_owner(name, docid):
     owner = owner[0]
     conn.close()
     isowner = name == owner
-    print(isowner)
     return isowner
 
 
@@ -1104,5 +1104,20 @@ def get_uploadsize():
     return sizebytes, sizemb, sizegb
 
 
+def check_permissions(filename):
+    # Überprüfung, ob das Dokument privat ist, und ob lese-Berechtigung besteht
+    # TODO fertig machen
+
+    if 'name' not in session:
+        flash("Sie müssen sich erst einloggen!")
+        time.sleep(1)
+        return redirect(url_for("index"))
+
+    conn = sqlite3.connect(database)
+    c = conn.cursor()
+    params = (filename, )
+    sql = """SELECT * FROM docs WHERE filename IS ?"""
+    owner = c.execute(sql, params).fetchone()
+    print(owner)
 if __name__ == "__main__":
     app.run(debug=True)  # bei Produktivsystemen mus das debugging auf False gesetzt werden.
