@@ -1116,8 +1116,7 @@ def get_uploadsize():
 
 
 def check_permissions(filename):
-    # Überprüfung, ob das Dokument privat ist, und ob lese-Berechtigung besteht
-    # TODO fertig machen
+    # ist der Benutzer der Besitzer oder admin?
 
     if 'name' not in session:
         flash("Sie müssen sich erst einloggen!")
@@ -1132,11 +1131,15 @@ def check_permissions(filename):
     owner = owner[0]
     name = session["name"]
     c.close()
-    permission = owner == name
+    admin = is_admin()
+
+    if not admin:
+        permission = owner == name
 
     return permission
 
 def is_private(filename):
+    # Prüfung ob Dokument privat
     conn = sqlite3.connect(database)
     c = conn.cursor()
     params = (filename,)
