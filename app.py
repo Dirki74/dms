@@ -14,8 +14,6 @@ import zipfile
 import io
 
 # TODO
-#  Privatsphäre in einzelansicht berücksichtigen
-#  Privatsphäre in Download berücksichtigen
 #  Fehler bei Anlegen einer bereits vorhandenen Kategorie entfernen
 #  Bei Kategorie löschen "Bitte Auswählen" in "vorhandene Dateien löschen" ändern und entsprechende Funktion einfügen
 
@@ -661,6 +659,14 @@ def return_files(filename):
         time.sleep(1)
         return redirect(url_for("index"))
 
+    private = is_private(filename)
+
+    if private:
+        ok = check_permissions(filename)
+        print(ok)
+        if not ok:
+            return render_template("forbidden.html")
+
     filepath = get_filepath(filename)
     downname = os.path.join(basedir, filepath, filename)
     namezip = filename + '.zip'
@@ -687,6 +693,13 @@ def open_files(filename):
         time.sleep(1)
         return redirect(url_for("index"))
 
+    private = is_private(filename)
+
+    if private:
+        ok = check_permissions(filename)
+        print(ok)
+        if not ok:
+            return render_template("forbidden.html")
 
     filepath = get_filepath(filename)
     downname = os.path.join(basedir, filepath, filename)
@@ -767,8 +780,6 @@ def welcome():
                 docs1 = c.fetchall()
 
         else:
-            #TODO
-            # Aktuell ein Bug, der alle Dokumente Ausgibt, obwohl Keyword oder docname nicht passen
             params = (name, searchstring, cats)
             # sql = """SELECT * FROM docs WHERE LOWER (keywords) like ? and category is ?"""
             sql = """SELECT * FROM (SELECT * FROM docs WHERE owner = ? OR private = 0) WHERE LOWER (keywords) like ? AND category IS ?"""
@@ -1116,8 +1127,27 @@ def check_permissions(filename):
     conn = sqlite3.connect(database)
     c = conn.cursor()
     params = (filename, )
-    sql = """SELECT * FROM docs WHERE filename IS ?"""
+    sql = """SELECT owner FROM docs WHERE filename IS ?"""
     owner = c.execute(sql, params).fetchone()
-    print(owner)
+    owner = owner[0]
+    name = session["name"]
+    c.close()
+    permission = owner == name
+
+    return permission
+
+def is_private(filename):
+    conn = sqlite3.connect(database)
+    c = conn.cursor()
+    params = (filename,)
+    sql = """SELECT private FROM docs WHERE filename IS ?"""
+    private = c.execute(sql, params).fetchone()
+    if private == 0:
+        private = False
+    else:
+        private = True
+
+    return private
+
 if __name__ == "__main__":
     app.run(debug=True)  # bei Produktivsystemen mus das debugging auf False gesetzt werden.
