@@ -18,13 +18,15 @@
       <label>In welche Kategorie sollen die vorhandenen Dateien verschoben werden?</label><br>
       <select name="destcat" size="5">
       <option selected>Bitte wählen!</option>
+      <!-- <option>Dateien löschen</option> -->
           {%  for entry in category %}
             <option>{{ entry[1] }}</option>
           {% endfor %}
+
       </select>
     </div>
     <div class="form-group">
-        <button type="submit" class="btn btn-primary"onclick="return confirm('Wollen Sie Kategorie wirklich löschen? Alle Dateien innerhalb dieser Kategorie werden ebenfalls gelöscht!')">löschen</button>
+        <button type="submit" class="btn btn-primary"onclick="return confirm('Wollen Sie Kategorie wirklich löschen?')">löschen</button>
     </div>
 </form>
 

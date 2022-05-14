@@ -443,7 +443,6 @@ def del_cat():
         sourcedir = sourcedir[0]
         scriptdir = os.path.abspath(".")
         sourcedir = os.path.join(scriptdir, basedir, sourcedir)
-        print("Sourcedir: ", sourcedir)
 
         sql = """SELECT path FROM category WHERE catname is ?"""
         params = (destcat,)
@@ -453,7 +452,7 @@ def del_cat():
         scriptdir = os.path.abspath(".")
 
         destdir = os.path.join(scriptdir, basedir, destdir)
-        print("Destdir: ", destdir)
+
         files = os.listdir(sourcedir)
         try:
             for file in files:
@@ -463,7 +462,6 @@ def del_cat():
                 conn.commit()
                 shutil.move(f"{sourcedir}/{file}", destdir)
                 conn.close()
-
 
         except OSError as e:
             flash(str(e))
