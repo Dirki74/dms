@@ -663,7 +663,7 @@ def return_files(filename):
 
     if private:
         ok = check_permissions(filename)
-        print(ok)
+
         if not ok:
             return render_template("forbidden.html")
 
@@ -697,7 +697,7 @@ def open_files(filename):
 
     if private:
         ok = check_permissions(filename)
-        print(ok)
+
         if not ok:
             return render_template("forbidden.html")
 
@@ -1133,10 +1133,15 @@ def check_permissions(filename):
     c.close()
     admin = is_admin()
 
+    if admin:
+        permission = True
+
     if not admin:
         permission = owner == name
 
+
     return permission
+
 
 def is_private(filename):
     # Prüfung ob Dokument privat
