@@ -14,7 +14,6 @@ import zipfile
 import io
 
 # TODO
-#  Fehler bei Anlegen einer bereits vorhandenen Kategorie entfernen
 #  Bei Kategorie löschen "Bitte Auswählen" in "vorhandene Dateien löschen" ändern und entsprechende Funktion einfügen
 
 
@@ -394,13 +393,20 @@ def add_cat():
             flash("Es ist ein Fehler beim Erstellen des Ordners aufgetreten")
 
         params = (newcatname, newcatpath)
+        try:
+            sql = """INSERT INTO category (catname, path) VALUES (?, ?)"""
+            c.execute(sql, params)
+            conn.commit()
+            conn.close()
 
-        sql = """INSERT INTO category (catname, path) VALUES (?, ?)"""
-        c.execute(sql, params)
-        conn.commit()
-        conn.close()
+        except sqlite3.IntegrityError:
+            flash("Kategorie existiert bereits!")
 
-    return render_template('add_cat.html')
+        except sqlite3.OperationalError:
+            flash("Es gab ein Problem mit der Datenbank, bitte probieren Sie es später nochmal!")
+
+
+    return render_template('add_cat.html', isadmin=isadmin)
 
 
 @app.route('/delcat', methods=('GET', 'POST'))
@@ -456,6 +462,8 @@ def del_cat():
                 c.execute(sql, params)
                 conn.commit()
                 shutil.move(f"{sourcedir}/{file}", destdir)
+                conn.close()
+
 
         except OSError as e:
             flash(str(e))
@@ -478,7 +486,7 @@ def del_cat():
         time.sleep(1)
         return render_template('delete_cat.html', category=category)
 
-    return render_template('delete_cat.html', category=category)
+    return render_template('delete_cat.html', category=category, isadmin=isadmin)
 
 
 @app.route('/', methods=('GET', 'POST'))
