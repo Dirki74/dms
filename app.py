@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import time
 from flask import Flask, render_template, request, url_for, flash, redirect, session, send_file  # , escape
 import sqlite3
@@ -385,7 +386,7 @@ def add_cat():
         notallowed = "/\\"
         newcatpath = newcatpath.strip(notallowed)
         completepath = os.path.join(basedir, newcatpath)
-
+        completepath = completepath.encode(encoding='UTF-8',errors='strict')
         try:
             if not os.path.exists(completepath):
                 os.mkdir(completepath)
