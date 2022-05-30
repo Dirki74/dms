@@ -386,7 +386,7 @@ def add_cat():
         notallowed = "/\\"
         newcatpath = newcatpath.strip(notallowed)
         completepath = os.path.join(basedir, newcatpath)
-        completepath = completepath.encode(encoding='UTF-8',errors='strict')
+        completepath = completepath.encode(encoding='UTF-8', errors='strict')
         try:
             if not os.path.exists(completepath):
                 os.mkdir(completepath)
@@ -887,12 +887,13 @@ def add_doc():
             c.execute(sql, params)
             folder = c.fetchone()
             folder = str(folder[0])
+            folder = folder
             filename = secure_filename(file.filename)
-
-            if os.path.exists(os.path.join(basedir, folder, filename)):
+            completepath = os.path.join(basedir, folder, filename)
+            if os.path.exists(completepath):
                 filename = modify_filename(filename)
 
-            file.save(os.path.join(basedir, folder, filename))
+            file.save(completepath)
             date = str(time.strftime("%d.%m.%Y-%H:%M:%S"))
             conn = sqlite3.connect(database)
             c = conn.cursor()
