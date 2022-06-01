@@ -1108,7 +1108,7 @@ def admin_statistics():
 
 def get_uploadsize():
     size = 0
-    folderpath = os.path.join(basedir, "upload")
+    folderpath = os.path.join(basedir)
 
     for path, dirs, files in os.walk(folderpath):
         for f in files:
