@@ -895,15 +895,18 @@ def add_doc():
             folder = folder
             filename = secure_filename(file.filename)
             completepath = os.path.join(basedir, folder, filename)
+
             if os.path.exists(completepath):
                 filename = modify_filename(filename)
+                completepath = os.path.join(basedir, folder, filename)
 
             file.save(completepath)
             date = str(time.strftime("%d.%m.%Y-%H:%M:%S"))
             conn = sqlite3.connect(database)
             c = conn.cursor()
             params = (filename, content, date, title, selected_cat, name, private)
-            sql = """INSERT INTO docs (filename, keywords, mod_date, doc_name, category, owner, private) VALUES (?, ?, ?, ?, ?, ?, ?)"""
+            sql = """INSERT INTO docs (filename, keywords, mod_date, doc_name, category, owner, private) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)"""
             c.execute(sql, params)
             conn.commit()
             conn.close()
