@@ -385,6 +385,11 @@ def add_cat():
 
         notallowed = "/\\"
         newcatpath = newcatpath.strip(notallowed)
+        chars = {'ö': 'oe', 'ä': 'ae', 'ü': 'ue', 'Ü': 'Ue', 'Ö': 'Oe', 'Ä': 'Ae', 'ß': 'ss'}
+
+        for char in chars:
+            newcatpath = newcatpath.replace(char, chars[char])
+
         completepath = os.path.join(basedir, newcatpath)
         completepath = completepath.encode(encoding='UTF-8', errors='strict')
         try:
@@ -908,7 +913,7 @@ def add_doc():
         else:
             flash("Ungültige Dateiendung!")
 
-    return render_template('add_doc.html', category=category, allowed_extension=allowed_extension)
+    return render_template('add_doc.html', category=category, allowed_extension=allowed_extension, isadmin=isadmin)
 
 
 @app.route('/logout')
