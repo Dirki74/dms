@@ -19,3 +19,9 @@ Anleitung zur Nutzung des Skriptes mit Gunicorn:
 https://hotlein.de/flask-anwendungen-mit-gunicorn-bereitstellen-ubuntu-20-4/
 
 Die Benutzung des Skriptes erfolgt auf eigene Gefahr und ohne Anspruch auf Support.
+
+
+Features in Planung:
+- Anbindung an einer MySQL-Datenbank
+- Einreichungen per eMail
+- 2-Faktor-Authentifizierung (in Arbeit)
