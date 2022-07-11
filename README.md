@@ -25,3 +25,4 @@ Features in Planung:
 - Anbindung an einer MySQL-Datenbank
 - Einreichungen per eMail
 - 2-Faktor-Authentifizierung (in Arbeit)
+- eine weitere Rubrik-Tiefe
