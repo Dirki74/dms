@@ -15,7 +15,6 @@ import smtplib
 from base64 import b64encode
 import zipfile
 import io
-import imghdr
 from email import encoders
 
 # TODO
@@ -110,9 +109,6 @@ def maildoc(docid):
         msg['To'] = recipient
         msg['Subject'] = mailsubject
         msg.attach(MIMEText(mailtext, 'plain'))
-        # f = open(completepath, "rb")
-        # attachment = MIMEImage(f.read())  # Kodierung des Anhangs wird festgelegt
-        # f.close()  # Datei wird geschlossen
 
         # open the file in bynary
         binary_pdf = open(completepath, 'rb')
