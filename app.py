@@ -9,10 +9,14 @@ from pathlib import Path
 import shutil
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+from email.mime.base import MIMEBase
 import smtplib
 from base64 import b64encode
 import zipfile
 import io
+import imghdr
+from email import encoders
 
 # TODO
 #  Bei Kategorie löschen "Bitte Auswählen" in "vorhandene Dateien löschen" ändern und entsprechende Funktion einfügen
@@ -77,6 +81,65 @@ def lostpw():
 
     return render_template('lostpw.html')
 
+@app.route('/maildoc/<docid>', methods=('GET', 'POST'))
+def maildoc(docid):
+    if 'name' not in session:
+        flash("Sie müssen sich erst einloggen!")
+        time.sleep(1)
+        return redirect(url_for("index"))
+
+    dbextensions, dbmailserver, dbmailport, dbmailname, dbmailfrom, dbmailtext, dbmailpw, dbmailsubject = load_settings()
+    current_data = get_dokument(docid)
+
+    filename = current_data[1]
+    folder = get_filepath(filename)
+    completepath = os.path.join(basedir, folder, filename)
+    print(completepath)
+
+    if request.method == 'POST':
+
+        recipient = request.form['recipient']
+        mailsubject = request.form['mailsubject']
+        mailtext = request.form['mailtext']
+
+        s = smtplib.SMTP(host=dbmailserver, port=dbmailport)
+        s.starttls()
+        s.login(dbmailname, dbmailpw)
+        msg = MIMEMultipart()
+        msg['From'] = dbmailfrom
+        msg['To'] = recipient
+        msg['Subject'] = mailsubject
+        msg.attach(MIMEText(mailtext, 'plain'))
+        # f = open(completepath, "rb")
+        # attachment = MIMEImage(f.read())  # Kodierung des Anhangs wird festgelegt
+        # f.close()  # Datei wird geschlossen
+
+        # open the file in bynary
+        binary_pdf = open(completepath, 'rb')
+
+        payload = MIMEBase('application', 'octate-stream', Name=filename)
+        payload.set_payload((binary_pdf).read())
+
+        # enconding the binary into base64
+        encoders.encode_base64(payload)
+
+        # add header with pdf name
+        payload.add_header('Content-Decomposition', 'attachment', filename=filename)
+        msg.attach(payload)
+
+        try:
+            s.send_message(msg)
+            flash("Das Dokument per eMail unterwegs...")
+
+        except smtplib.SMTPAuthenticationError:
+            flash("Das Mailsystem ist nicht korrekt konfiguriert! Der Benutzername oder das Passwort sind falsch!")
+
+        except smtplib.SMTPRecipientsRefused:
+            flash("Die in ihr Profil enthaltene eMailadresse ist ungültig! "
+                  "Bitte bitten Sie den Administrator das Passwort zu ändern!")
+        del msg
+
+    return render_template("maildoc.html")
 
 @app.route('/settings', methods=('GET', 'POST'))
 def settings():

@@ -1,1 +1,39 @@
-{% extends 'base.html' %}
+{% extends 'base_adm.html' %}
+
+{% block content %}
+    <!DOCTYPE html>
+
+<head>
+<meta charset="UTF-8">
+
+
+<h1>{% block title %} Dokument versenden: {% endblock %}</h1>
+</head>
+    <hr>
+    <form method="post">
+    <div class="form-group" >
+        <br>
+        <label for="name"><strong>Empfänger:</strong></label>
+        <input type="text" name="recipient"
+               class="form-control"></input>
+
+        <br>
+                <label for="email"><strong>Mailbetreff:</strong></label>
+        <input type="text" name="mailsubject"
+               class="form-control"
+               value="{{ dbmailsubject }}"></input>
+        <br>
+        <label for="email"><strong>Mailtext:</strong></label>
+
+        <textarea name="mailtext" type="text" class="form-control" wrap="hard"  rows="6">{{ dbmailtext }}
+           </textarea>
+        <br>
+
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Senden!</button>
+    </div>
+
+    </form>
+
+{% endblock %}
